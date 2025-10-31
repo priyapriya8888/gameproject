@@ -9,6 +9,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout Code') {
             steps {
                 echo "📦 Cloning Snake Game repository..."
@@ -29,6 +30,7 @@ pipeline {
             steps {
                 echo "🐳 Building Docker image for Snake Game..."
                 bat 'docker --version'
+                // Use lightweight base image if possible (make sure Dockerfile uses python:3.12-slim)
                 bat 'docker build -t snakegame:v1 .'
             }
         }
@@ -36,16 +38,21 @@ pipeline {
         stage('Docker Login') {
             steps {
                 echo "🔐 Logging into Docker Hub..."
+                bat 'docker logout || exit 0'  // ensure fresh login
                 bat 'docker login -u vishnupriya68 -p "Shivapriya123@"'
             }
         }
 
         stage('Push Docker Image to Docker Hub') {
             steps {
-                echo "⬆️ Pushing Docker image to your existing repository (sample1)..."
-                // ✅ Tag image with your existing DockerHub repo name
-                bat 'docker tag snakegame:v1 vishnupriya68/sample2:snakegame-v1'
-                bat 'docker push vishnupriya68/sample2:snakegame-v1'
+                echo "⬆️ Pushing Docker image to Docker Hub (repo: snakegame)..."
+                script {
+                    retry(2) {
+                        bat 'docker tag snakegame:v1 vishnupriya68/snakegame:latest'
+                        // Limit concurrent uploads for Windows reliability
+                        bat 'docker push --max-concurrent-uploads 1 vishnupriya68/snakegame:latest'
+                    }
+                }
             }
         }
 
