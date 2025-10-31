@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: snake-game
-        image: snake-game:latest
+        image: vishnupriya68/snakegame:latest   # ✅ Corrected image name
         ports:
         - containerPort: 5000
