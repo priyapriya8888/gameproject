@@ -44,8 +44,8 @@ pipeline {
             steps {
                 echo "⬆️ Pushing Docker image to your existing repository (sample1)..."
                 // ✅ Tag image with your existing DockerHub repo name
-                bat 'docker tag snakegame:v1 vishnupriya68/sample1:snakegame-v1'
-                bat 'docker push vishnupriya68/sample1:snakegame-v1'
+                bat 'docker tag snakegame:v1 vishnupriya68/sample2:snakegame-v1'
+                bat 'docker push vishnupriya68/sample2:snakegame-v1'
             }
         }
 
