@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/yourusername/snake-game.git'
+                git 'https://github.com/priyapriya8888/snake-game.git'
             }
         }
         stage('Install Dependencies') {
