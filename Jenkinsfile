@@ -42,9 +42,10 @@ pipeline {
 
         stage('Push Docker Image to Docker Hub') {
             steps {
-                echo "⬆️ Pushing Docker image to Docker Hub..."
-                bat 'docker tag snakegame:v1 vishnupriya68/snakegame:latest'
-                bat 'docker push vishnupriya68/snakegame:latest'
+                echo "⬆️ Pushing Docker image to your existing repository (sample1)..."
+                // ✅ Tag image with your existing DockerHub repo name
+                bat 'docker tag snakegame:v1 vishnupriya68/sample1:snakegame-v1'
+                bat 'docker push vishnupriya68/sample1:snakegame-v1'
             }
         }
 
@@ -60,7 +61,7 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                echo "🔍 Checking Kubernetes Pods..."
+                echo "🔍 Checking Kubernetes Pods and Services..."
                 withEnv(['KUBECONFIG=C:\\Users\\Vishnupriya\\.kube\\config']) {
                     bat 'kubectl get pods'
                     bat 'kubectl get svc'
