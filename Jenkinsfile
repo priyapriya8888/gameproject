@@ -2,15 +2,16 @@ pipeline {
     agent any
 
     environment {
-        // 👇 Your actual Python installation path
+        // ✅ Python + Docker Paths
         PYTHON_HOME = 'C:\\Users\\Vishnupriya\\AppData\\Local\\Programs\\Python\\Python312'
-        PATH = "${env.PATH};${env.PYTHON_HOME};${env.PYTHON_HOME}\\Scripts"
+        DOCKER_HOME = 'C:\\Program Files\\Docker\\Docker\\resources\\bin'
+        PATH = "${env.PATH};${env.PYTHON_HOME};${env.PYTHON_HOME}\\Scripts;${env.DOCKER_HOME}"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                echo "📦 Cloning repository..."
+                echo "📦 Cloning Snake Game repository..."
                 git 'https://github.com/priyapriya8888/gameproject.git'
             }
         }
@@ -26,38 +27,54 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                echo "🐳 Building Docker image..."
+                echo "🐳 Building Docker image for Snake Game..."
                 bat 'docker --version'
-                bat 'docker build -t snake-game .'
+                bat 'docker build -t snakegame:v1 .'
             }
         }
 
-        stage('Deploy Container') {
+        stage('Docker Login') {
             steps {
-                echo "🚀 Deploying container..."
-                // Stop old container if already running
-                bat 'docker stop snake-game || echo "No existing container"'
-                bat 'docker rm snake-game || echo "No container to remove"'
+                echo "🔐 Logging into Docker Hub..."
+                bat 'docker login -u vishnupriya68 -p "Shivapriya123@"'
+            }
+        }
 
-                // Run new one
-                bat 'docker run -d -p 5000:5000 --name snake-game snake-game'
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                echo "⬆️ Pushing Docker image to Docker Hub..."
+                bat 'docker tag snakegame:v1 vishnupriya68/snakegame:latest'
+                bat 'docker push vishnupriya68/snakegame:latest'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo "🚀 Deploying Snake Game to Kubernetes..."
+                withEnv(['KUBECONFIG=C:\\Users\\Vishnupriya\\.kube\\config']) {
+                    bat 'kubectl apply -f deployment.yaml --validate=false'
+                    bat 'kubectl apply -f service.yaml'
+                }
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                echo "🔍 Checking running containers..."
-                bat 'docker ps'
+                echo "🔍 Checking Kubernetes Pods..."
+                withEnv(['KUBECONFIG=C:\\Users\\Vishnupriya\\.kube\\config']) {
+                    bat 'kubectl get pods'
+                    bat 'kubectl get svc'
+                }
             }
         }
     }
 
     post {
         success {
-            echo "✅ Pipeline completed successfully!"
+            echo "✅ Snake Game pipeline completed successfully!"
         }
         failure {
-            echo "❌ Pipeline failed. Check above logs."
+            echo "❌ Pipeline failed! Please check above logs."
         }
     }
 }
